@@ -1,0 +1,37 @@
+name: Create Document
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  create_file_with_pandoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout and list files
+        id: files_list
+        run: |
+          mkdir output # create output dir
+          echo "files=$(printf '"%s" ' */*.md)" > $GITHUB_OUTPUT
+      - uses: docker://pandoc/latex:3.1
+        with:
+          args: ${{ steps.files_list.outputs.files }} --pdf-engine=xelatex -H formatting/formatting.tex -f markdown+rebase_relative_paths -o output/Sample.docx --toc -V lof -V geometry:margin=1in -V "title:Sample Document" -V toc-depth:2 -V secnumdepth:3 --number-sections
+      - uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: output
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          artifacts: output/Sample.docx
+          artifactContentType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+          draft: true
