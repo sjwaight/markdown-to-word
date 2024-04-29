@@ -22,7 +22,7 @@ jobs:
           echo "files=$(printf '"%s" ' content/*.md)" > $GITHUB_OUTPUT
       - uses: docker://pandoc/latex:3.1
         with:
-          args: ${{ steps.files_list.outputs.files }} --pdf-engine=xelatex -H formatting/format.tex -f markdown+rebase_relative_paths -o output/sample.pdf --toc -V lof -V geometry:margin=1in -V toc-depth:2 -V secnumdepth:3 --number-sections
+          args: ${{ steps.files_list.outputs.files }} --pdf-engine=xelatex -H formatting/format.tex -f markdown+rebase_relative_paths -o output/sample.pdf --toc -V lof -V toc-depth:2 -V secnumdepth:3 --number-sections
       - uses: actions/upload-artifact@v4
         with:
           name: output
